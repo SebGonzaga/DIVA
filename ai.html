@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sidebar with Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            display: flex; /* Default for larger screens */
+            flex-direction: row; /* Default for larger screens */
+        }
+
+        /* Main wrapper for sidebar and main content */
+        .main-layout-wrapper {
+            display: flex;
+            height: calc(100vh - 40px); /* Total height minus body padding */
+            width: 100%;
+        }
+
+        .sidebar-container {
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+            /* margin-bottom: 10px; Removed this as it's for the container itself, not internal spacing */
+            animation: fadeIn 0.6s ease-out;
+            width: 200px;
+            height: 100%; /* Take full height of its parent (.main-layout-wrapper) */
+            background-color: #1e293b;
+            border-radius: 12px;
+            display: flex; /* CRUCIAL: Makes it a flex container */
+            flex-direction: column; /* CRUCIAL: Stacks children vertically */
+            align-items: flex-start;
+            padding: 20px; /* Padding inside the sidebar */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            background-color: #334155;
+            padding: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            align-items: flex-start;
+            position: relative;
+            flex-grow: 1; /* CRUCIAL: This makes the nav section grow and push content below it down */
+        }
+
+        .nav a {
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .active-indicator {
+            position: absolute;
+            left: 0;
+            width: 4px;
+            height: 28px;
+            background-color: #38bdf8;
+            border-radius: 0 4px 4px 0;
+            transition: top 0.3s ease;
+        }
+
+        .nav-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 10px 0;
+            margin-left: 20px;
+        }
+
+        .nav-item img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            opacity: 0.7;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .nav-item:hover img {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .nav-item.active img {
+            opacity: 1;
+        }
+
+        .main-content {
+            flex: 1; /* Takes remaining width */
+            height: 100%; /* Takes full height of its parent (.main-layout-wrapper) */
+            background-color: #1e293b;
+            margin-top: 0;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            padding: 30px;
+            border-radius: 12px;
+            color: #ffffff;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Chatbot Styles */
+        .chatbot-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 100%;
+            height: 100%; /* Fills the main-content */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-top: 0; /* Removed margin-top as main-content padding handles it */
+            flex: 1;
+        }
+
+        .chatbot-header {
+            background-color: #4299e1;
+            color: #ffffff;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #3182ce;
+        }
+
+        .chatbot-title {
+            font-size: 1.25rem;
+            font-weight: 600; /* Adjusted for consistency */
+        }
+
+        #close-button {
+            color: #gray-300;
+            hover: #ffffff;
+            transition-colors duration-200;
+            cursor: pointer;
+        }
+
+        /* New suggestion questions styling */
+        .suggestion-questions {
+            padding: 1rem;
+            background-color: #f8fafc; /* Light background for suggestions */
+            border-bottom: 1px solid #e2e8f0; /* Subtle border below suggestions */
+        }
+
+        .suggestion-button {
+            background-color: #dbeafe; /* Light blue */
+            color: #1e40af; /* Darker blue text */
+            font-size: 0.875rem; /* text-sm */
+            padding: 0.5rem 0.75rem; /* px-3 py-1 */
+            border-radius: 9999px; /* rounded-full */
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            border: none;
+        }
+
+        .suggestion-button:hover {
+            background-color: #bfdbfe; /* Hover blue */
+            transform: translateY(-1px); /* Slight lift on hover */
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Message wrapper for avatar and bubble */
+        .message-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.5rem; /* mb-2 */
+            animation: fadeIn 0.5s ease-out; /* Apply fade-in to wrapper */
+        }
+
+        .message {
+            border-radius: 1.3em;
+            padding: 0.75rem 1rem;
+            max-width: 70%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative; /* For copy button positioning */
+        }
+
+        .message.sent {
+            margin-left: auto; /* Push to right */
+            text-align: right;
+            background-color: #d4f5ff;
+            color: #0c4a6e;
+            border-top-right-radius: 0.2em;
+        }
+
+        .message.received {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border-top-left-radius: 0.2em;
+        }
+
+        .timestamp {
+            display: block;
+            margin-top: 0.25rem; /* mt-1 */
+            font-size: 0.75rem; /* text-xs */
+            color: #94a3b8; /* gray-400 */
+            text-align: right; /* For sent messages */
+        }
+        .message.received .timestamp {
+            text-align: left; /* For received messages */
+        }
+
+        /* Copy Button Styles */
+        .copy-button {
+            position: absolute;
+            top: 0.25rem; /* top-1 */
+            right: 0.25rem; /* right-1 */
+            padding: 0.25rem; /* p-1 */
+            background-color: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
+            border-radius: 9999px; /* rounded-full */
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message:hover .copy-button {
+            opacity: 1;
+        }
+
+        .copy-button svg {
+            width: 1rem; /* w-4 */
+            height: 1rem; /* h-4 */
+            color: #64748b; /* text-gray-600 */
+        }
+
+        .copy-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .copied-tooltip {
+            position: absolute;
+            top: -1.75rem; /* -top-7 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #334155; /* gray-700 */
+            color: #ffffff;
+            font-size: 0.75rem; /* text-xs */
+            padding: 0.25rem 0.5rem; /* px-2 py-1 */
+            border-radius: 0.25rem; /* rounded */
+            white-space: nowrap;
+            z-index: 10;
+            display: none; /* hidden */
+        }
+
+        /* Loading indicator styles */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Input Area specific styles */
+        .input-area-container {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            margin-top: auto;
+            background-color: #ffffff; /* Ensure it matches the chatbot background */
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #message-input {
+            flex: 1;
+            border-radius: 1.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem 1rem;
+            outline: none;
+            height: 48px; /* Explicit height for consistency */
+            focus: ring-2;
+            focus: ring-blue-500;
+            focus: border-transparent;
+            color: #000;
+        }
+        #message-input::placeholder {
+            color: #94a3b8; /* Tailwind gray-400 for placeholder */
+        }
+
+        #send-button {
+            height: 48px; /* Match input height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4299e1;
+            hover: #3182ce;
+            color: #ffffff;
+            border-radius: 1.5rem;
+            padding: 0.75rem 1rem;
+            transition-colors duration-200;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        #send-button svg {
+            height: 1rem;
+            width: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .layout { /* This class is not in your HTML, consider if it's meant for the outer wrapper */
+                flex-direction: column;
+            }
+
+            .sidebar { /* This class was removed from HTML */
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .main-content {
+                margin: 10px 0 0 0;
+            }
+
+            .chatbot-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout-wrapper"> <div class="sidebar-container">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="logo.png" alt="Logo">
+                </div>
+                <div style="color: #ffffff; font-size: 20px;">D.I.V.A.</div>
+            </div>
+
+            <div class="nav">
+                <div class="active-indicator" style="top: 0;"></div> 
+
+                <a href="weather.html" onclick="moveIndicator(this)">
+                    <div class="nav-item ">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/partly-cloudy-day.png" alt="Weather Icon">
+                        Weather Dashboard
+                    </div>
+                </a>
+                <a href="volcanodashboard.html" onclick="moveIndicator(this)">
+                    <div class="nav-item">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/volcano.png" alt="Volcano Icon">
+                        Volcanic Dashboard
+                    </div>
+                </a>
+                
+                <a href="ai.html" onclick="moveIndicator(this)">
+                     <div class="active-indicator" style="top: 195px;"></div>
+                    <div class="nav-item active">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/robot-2.png" alt="Virtual Assistant Icon">
+                        Virtual Assistance
+                    </div>
+                </a>
+                <a href="emergency.html" onclick="moveIndicator(this)">
+                    <div class="nav-item ">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/sos.png" alt="Emergency Icon">
+                        Emergency
+                    </div>
+                </a>
+            </div>
+            
+            <div style="margin-bottom: 10px;"> 
+                <a href="/logout">
+                    <div class="nav-item">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png" alt="Logout Icon">
+                        Logout
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="chatbot-container">
+                <div class="chatbot-header">
+                    <h2 class="chatbot-title">Hi, My name is DIVA</h2>
+                    <button id="clear-chat-button" class="text-gray-300 hover:text-white transition-colors duration-200 text-sm px-3 py-1 rounded-full border border-gray-400 hover:border-white">
+                        Clear Chat
+                    </button>
+                </div>
+                <div class="suggestion-questions">
+                    <p class="text-gray-700 text-sm mb-2">Try asking me:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="suggestion-button">What to do during an earthquake?</button>
+                        <button class="suggestion-button">How to prepare for a typhoon?</button>
+                        <button class="suggestion-button">Volcanic eruption signs?</button>
+                        <button class="suggestion-button">Where can I find emergency contacts?</button>
+                    </div>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                </div>
+                <div id="loading-indicator" class="hidden loading-indicator">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <span>D.I.V.A. is typing...</span>
+                </div>
+                <div class="input-area-container">
+                    <div class="input-area">
+                        <input type="text" id="message-input" placeholder="Type your message..." />
+                        <button id="send-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    console.log("Chatbot script loaded and connected to HTML elements.");
+
+    const indicator = document.querySelector('.active-indicator');
+    const navItems = document.querySelectorAll('.nav a');
+    const chatMessages = document.getElementById("chat-messages");
+    const messageInput = document.getElementById("message-input");
+    const sendButton = document.getElementById("send-button");
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const suggestionQuestionsContainer = document.querySelector('.suggestion-questions');
+    const clearChatButton = document.getElementById("clear-chat-button");
+
+    // Global array to store message objects for the CURRENT SESSION ONLY
+    // It will be empty on each page load/refresh
+    let chatHistoryData = [];
+    // Flag to track if the chatbot has sent its first real message
+    let hasReceivedFirstAIResponse = false;
+
+    function moveIndicator(el) {
+        navItems.forEach(link => link.firstElementChild.classList.remove('active'));
+        el.querySelector('.nav-item').classList.add('active');
+
+        // The indicator's top position should be relative to its parent (.nav)
+        const topOffset = el.offsetTop;
+        indicator.style.top = `${topOffset}px`;
+    }
+
+    // Function to add a message to the chat display (DOM)
+    function addMessageToDisplay(text, type, timestamp) {
+        const messageWrapper = document.createElement("div");
+        messageWrapper.classList.add("message-wrapper", "flex", "items-start", "mb-2");
+
+        if (type === 'sent') {
+            messageWrapper.classList.add("ml-auto", "justify-end");
+        } else { // received
+            messageWrapper.classList.add("mr-auto");
+        }
+
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", type, "relative");
+
+        const p = document.createElement("p");
+        p.classList.add("text-sm");
+        p.textContent = text;
+
+        const timeSpan = document.createElement("span");
+        timeSpan.classList.add("timestamp", "text-xs", "text-gray-500", "opacity-75", "block", "mt-1");
+        timeSpan.textContent = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        messageDiv.appendChild(p);
+        messageDiv.appendChild(timeSpan);
+
+        messageWrapper.appendChild(messageDiv);
+
+        if (type === 'received') {
+            const copyButton = document.createElement("button");
+            copyButton.classList.add("copy-button");
+            copyButton.innerHTML = `<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002-2h2a2 2 0 002 2m0 0h2a2 2 0 012 2v2"></path></svg>`;
+
+            const copiedTooltip = document.createElement("span");
+            copiedTooltip.classList.add("copied-tooltip", "hidden");
+            copiedTooltip.textContent = "Copied!";
+
+            messageDiv.appendChild(copyButton);
+            messageDiv.appendChild(copiedTooltip);
+
+            messageDiv.classList.add("group");
+            copyButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = text;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                try {
+                    document.execCommand('copy');
+                    copiedTooltip.classList.remove('hidden');
+                    setTimeout(() => {
+                        copiedTooltip.classList.add('hidden');
+                    }, 1500);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    console.log('Could not copy text. Please select and copy manually.');
+                } finally {
+                    document.body.removeChild(tempTextArea);
+                }
+            });
+        }
+
+        chatMessages.appendChild(messageWrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Function to send message to the AI (OpenAI API)
+    async function sendMessageToAI(message) {
+        // Show loading indicator and disable input/button
+        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+        if (sendButton) sendButton.disabled = true;
+        if (messageInput) messageInput.disabled = true;
+
+        try {
+            // IMPORTANT: Replace "YOUR_API_KEY_HERE" with your actual OpenAI API key.
+            // It should be a string, like "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            const OPENAI_API_KEY = "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";
+
+            const url = "https://api.openai.com/v1/chat/completions"; // OpenAI Chat Completions API
+
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${OPENAI_API_KEY}`,
+            };
+
+            const payload = {
+                model: "gpt-3.5-turbo", // Specify the GPT-3.5 Turbo model
+                messages: [
+                    { role: "user", content: message },
+                ],
+            };
+
+            console.log("Attempting to send message to OpenAI API...");
+            console.log("API URL:", url);
+            console.log("Payload:", payload);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                console.error(`API request failed with status ${response.status}:`, errorBody);
+                addMessageToDisplay(`Error: D.I.V.A. could not be reached (Status: ${response.status}). Please verify your API key and network connection.`, 'received', new Date().toISOString());
+                return;
+            }
+
+            const result = await response.json();
+            console.log("OpenAI API response:", result);
+
+            if (result.choices && result.choices.length > 0 &&
+                result.choices[0].message && result.choices[0].message.content) {
+                const aiResponse = result.choices[0].message.content;
+                const aiMessageObj = { text: aiResponse, type: 'received', timestamp: new Date().toISOString() };
+                chatHistoryData.push(aiMessageObj);
+                addMessageToDisplay(aiMessageObj.text, aiMessageObj.type, aiMessageObj.timestamp);
+
+                // New logic: Hide suggestions after the first actual AI response
+                if (!hasReceivedFirstAIResponse) {
+                    hasReceivedFirstAIResponse = true;
+                    if (suggestionQuestionsContainer) {
+                        console.log("Hiding suggestion questions now."); // Debugging log
+                        suggestionQuestionsContainer.style.display = 'none';
+                    }
+                }
+
+            } else {
+                addMessageToDisplay("Sorry, D.I.V.A. couldn't generate a response. The response format was unexpected.", 'received', new Date().toISOString());
+                console.error("Unexpected OpenAI API response structure:", result);
+            }
+        } catch (error) {
+            console.error("Error calling OpenAI API:", error);
+            addMessageToDisplay("Oops! Something went wrong while connecting to D.I.V.A. Please check your internet connection or try again later.", 'received', new Date().toISOString());
+        } finally {
+            // Hide loading indicator and re-enable input/button
+            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+            if (sendButton) sendButton.disabled = false;
+            if (messageInput) messageInput.disabled = false;
+            if (messageInput) messageInput.focus();
+        }
+    }
+
+    window.onload = () => {
+        const active = document.querySelector('.nav-item.active');
+        if (active) {
+            // Adjust the indicator's top position correctly now that .nav is the parent
+            // Calculate relative position within the .nav container
+            const navRect = document.querySelector('.nav').getBoundingClientRect();
+            const activeItemRect = active.getBoundingClientRect();
+            indicator.style.top = `${activeItemRect.top - navRect.top}px`;
+        }
+
+        const initialMessage = { text: "How can I assist you today?", type: 'received', timestamp: new Date().toISOString() };
+        chatHistoryData.push(initialMessage);
+        addMessageToDisplay(initialMessage.text, initialMessage.type, initialMessage.timestamp);
+        // Ensure suggestions are visible if no history (which will always be the case on fresh load)
+        if (suggestionQuestionsContainer) {
+            suggestionQuestionsContainer.style.display = 'block'; // Or 'flex' if that's its original display style
+        }
+
+
+        // Event listener for send button click
+        if (sendButton) {
+            sendButton.addEventListener("click", () => {
+                const messageText = messageInput.value.trim();
+                if (messageText !== "") {
+                    const userMessageObj = { text: messageText, type: 'sent', timestamp: new Date().toISOString() };
+                    chatHistoryData.push(userMessageObj);
+                    addMessageToDisplay(userMessageObj.text, userMessageObj.type, userMessageObj.timestamp);
+                    messageInput.value = ""; // Clear input field
+                    sendMessageToAI(messageText); // Call the AI function
+                }
+            });
+        }
+
+        // Event listener for Enter key press in the input field
+        if (messageInput) {
+            messageInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    if (sendButton) sendButton.click(); // Simulate a click on the send button
+                }
+            });
+        }
+
+        // Add event listeners for suggestion buttons
+        const suggestionButtons = document.querySelectorAll('.suggestion-button');
+        suggestionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                messageInput.value = button.textContent;
+                sendButton.click(); // Simulate clicking the send button
+            });
+        });
+
+        // Event listener for Clear Chat button
+        if (clearChatButton) {
+            clearChatButton.addEventListener('click', () => {
+                chatMessages.innerHTML = ''; // Clear DOM messages
+                chatHistoryData = []; // Clear in-memory history
+
+                // Reset flag and show suggestions again
+                hasReceivedFirstAIResponse = false;
+                if (suggestionQuestionsContainer) {
+                    suggestionQuestionsContainer.style.display = 'block'; // Or 'flex'
+                }
+
+                // Add the initial message back after clearing
+                const initialMessage = { text: "How can I assist you today?", type: 'received', timestamp: new Date().toISOString() };
+                chatHistoryData.push(initialMessage);
+                addMessageToDisplay(initialMessage.text, initialMessage.type, initialMessage.timestamp);
+            });
+        }
+    };
+</script>
+</body>
+</html>

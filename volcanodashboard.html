@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sidebar with Links</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #000;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .layout {
+            display: flex;
+            height: 100%;
+        }
+
+        .sidebar-container {
+            margin-bottom: 10px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .sidebar {
+            width: 200px;
+            height: calc(100vh - 40px);
+            background-color: #1e293b;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            background-color: #334155;
+            padding: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .nav a {
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .active-indicator {
+            position: absolute;
+            left: 0;
+            width: 4px;
+            height: 28px;
+            background-color: #38bdf8;
+            border-radius: 0 4px 4px 0;
+            transition: top 0.3s ease;
+        }
+
+        .nav-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 10px 0;
+            margin-left: 20px;
+        }
+
+        .nav-item img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            opacity: 0.7;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .nav-item:hover img {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .nav-item.active img {
+            opacity: 1;
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: #1e293b;
+            margin-left: 10px;
+            padding: 20px;
+            border-radius: 12px;
+            color: #ffffff;
+            overflow-y: auto;
+            height: calc(100vh - 40px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Styles for the content containers */
+        .volcano-map-container,
+        .volcano-list-container,
+        .eruption-chart-container {
+            background-color: #2d3748; /* A slightly darker shade for the containers */
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px; /* Add some spacing between the sections */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        }
+
+        .volcano-map-container h2,
+        .volcano-list-container h2,
+        .eruption-chart-container h2 {
+            color: #cbd5e0; /* Light text for the section titles */
+            text-align: left; /* Align titles to the left within their containers */
+            margin-top: 0; /* Remove default top margin for better spacing */
+            margin-bottom: 15px; /* Add space below the title */
+            border-bottom: 1px solid #4a5568; /* Add a subtle bottom border */
+            padding-bottom: 10px;
+        }
+
+        #map {
+            height: 400px; /* Adjust map height as needed */
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 4px; /* Optional: round the corners of the map */
+        }
+
+        .volcano-list-container ul#volcanoes li span.alert-level {
+            font-weight: bold;
+        }
+
+        .volcano-list-container ul#volcanoes li span.level-0 {
+            color: green;
+        }
+
+        .volcano-list-container ul#volcanoes li span.level-1 {
+            color: yellowgreen;
+        }
+
+        .volcano-list-container ul#volcanoes li span.level-2 {
+            color: orange;
+        }
+
+        .volcano-list-container ul#volcanoes li span.level-3 {
+            color: orangered;
+        }
+
+        .volcano-list-container ul#volcanoes li span.level-4 {
+            color: red;
+        }
+
+        .volcano-list-container ul#volcanoes li span.level-5 {
+            color: darkred;
+        }
+
+        .volcano-list-container ul#volcanoes li {
+            padding: 10px; /* Slightly more padding for list items */
+            border-bottom: 1px solid #4a5568; /* Darker border for list items */
+        }
+
+        .volcano-list-container ul#volcanoes li:last-child {
+            border-bottom: none; /* Remove border from the last item */
+        }
+
+        .volcano-list-container ul#volcanoes li .volcano-image {
+            width: 80px; /* Adjust the size as needed */
+            height: auto;
+            margin-top: 0; /* Remove the default top margin */
+            border-radius: 4px; /* Optional: add some rounding to the image */
+            margin-right: 15px;
+        }
+
+        #barChartContainer {
+            width: 100%;
+            margin-top: 15px; /* Add a bit more space above the chart */
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; height: calc(100vh - 40px); width: 100%;">
+
+        <div class="sidebar-container">
+        <div class="sidebar">
+          <div class="logo-container">
+            <div class="logo">
+              <img src="logo.png" alt="Logo">
+            </div>
+            <div style="color: #ffffff; font-size: 20px;">D.I.V.A.</div>
+          </div>
+  
+          <div class="nav">
+            <div class="active-indicator" style="top: 0;"></div>
+  
+            <a href="weather.html" onclick="moveIndicator(this)">
+              <div class="nav-item ">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/partly-cloudy-day.png" alt="Weather Icon">
+                Weather Dashboard
+              </div>
+            </a>
+            <a href="volcanodashboard.html" onclick="moveIndicator(this)">
+                  <div class="active-indicator" style="top: 100px;"></div>
+              <div class="nav-item active">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/volcano.png" alt="Volcano Icon">
+                Volcanic Dashboard
+              </div>
+            </a>
+           
+            <a href="ai.html" onclick="moveIndicator(this)">
+              <div class="nav-item">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/robot-2.png" alt="Virtual Assistant Icon">
+                Virtual Assistance
+              </div>
+            </a>
+            <a href="emergency.html" onclick="moveIndicator(this)">
+              <div class="nav-item">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/sos.png" alt="Emergency Icon">
+                Emergency
+              </div>
+            </a>
+          </div>
+  
+          <div style="margin-top: auto; margin-bottom: 10px;">
+            <a href="/logout">
+              <div class="nav-item">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png" alt="Logout Icon">
+                Logout
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+        <div class="main-content">
+            <div class="volcano-map-container">
+                <h2><i class="fas fa-map-marked-alt" style="margin-right: 10px;"></i> Philippine Volcano Map</h2>
+                <div id="map"></div>
+            </div>
+
+            <div class="volcano-list-container">
+                <h2><i class="fas fa-list-ul" style="margin-right: 10px;"></i> Volcano Alert Levels</h2>
+                <ul id="volcanoes"></ul>
+            </div>
+
+            <div class="eruption-chart-container">
+                <h2><i class="fas fa-chart-bar" style="margin-right: 10px;"></i> Eruption Frequency of PH Volcanoes</h2>
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const indicator = document.querySelector('.active-indicator');
+        const navItems = document.querySelectorAll('.nav a');
+
+        function moveIndicator(el) {
+            navItems.forEach(link => link.firstElementChild.classList.remove('active'));
+            el.querySelector('.nav-item').classList.add('active');
+
+            const topOffset = el.offsetTop;
+            indicator.style.top = `${topOffset}px`;
+        }
+
+        window.onload = () => {
+            const active = document.querySelector('.nav-item.active');
+            if (active) {
+                indicator.style.top = `${active.parentElement.offsetTop}px`;
+            }
+        };
+    </script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const volcanoes = [
+            {
+                name: "Mayon",
+                coords: [13.2575, 123.6856],
+                description: "Active stratovolcano in Albay.",
+                alertLevel: "Alert Level 3",
+                eruptions: 52,
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Mayon_Volcano_and_the_Sleeping_Lion.jpg/330px-Mayon_Volcano_and_the_Sleeping_Lion.jpg",
+                link: "https://en.wikipedia.org/wiki/Mayon_Volcano"
+            },
+            {
+                name: "Taal",
+                coords: [14.002, 120.993],
+                description: "Volcano on Luzon island.",
+                alertLevel: "Alert Level 1",
+                eruptions: 34,
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Taal_Volcano_from_Tagaytay_%28001%29_2024-06-09.jpg/330px-Taal_Volcano_from_Tagaytay_%28001%29_2024-06-09.jpg",
+                link: "https://en.wikipedia.org/wiki/Taal_Volcano"
+            },
+            {
+                name: "Mount Pinatubo",
+                coords: [15.1425, 120.3500],
+                description: "Volcano in Zambales with a major 1991 eruption.",
+                alertLevel: "Alert Level 0",
+                eruptions: 6,
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Mt_Pinatubo_trekking_-_panoramio_%285%29.jpg/330px-Mt_Pinatubo_trekking_-_panoramio_%285%29.jpg",
+                link: "https://en.wikipedia.org/wiki/Mount_Pinatubo"
+            },
+            {
+                name: "Kanlaon",
+                coords: [10.4123, 123.132],
+                description: "Active volcano on Negros Island.",
+                alertLevel: "Alert Level 2",
+                eruptions: 30,
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Drone_Shot_of_Mt._Kanlaon.jpg/330px-Drone_Shot_of_Mt._Kanlaon.jpg",
+                link: "https://en.wikipedia.org/wiki/Kanlaon"
+            },
+            {
+                name: "Mount Bulusan",
+                coords: [12.7692, 124.0567],
+                description: "Volcano in Sorsogon, Bicol Region.",
+                alertLevel: "Alert Level 1",
+                eruptions: 15,
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mount_Bulusan_view_from_Sorsogon_City_Coastal_Road_%28Sorsogon%3B_04-23-2023%29.jpg/330px-Mount_Bulusan_view_from_Sorsogon_City_Coastal_Road_%28Sorsogon%3B_04-23-2023%29.jpg",
+                link: "https://en.wikipedia.org/wiki/Mount_Bulusan"
+            }
+        ];
+
+        const map = L.map('map').setView([12.8797, 121.774], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        function renderVolcanoList() {
+            const volcanoList = document.getElementById('volcanoes');
+            volcanoList.innerHTML = '';
+            volcanoes.forEach(volcano => {
+                const level = parseInt(volcano.alertLevel.match(/\d+/)?.[0] || 0);
+                const alertClass = `alert-level level-${level}`;
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;"><img src="${volcano.image}" class="volcano-image" alt="${volcano.name}" style="margin-right: 15px;">
+                        <div>
+                            <strong>${volcano.name}</strong> -
+                            Alert Level <span class="${alertClass}">${volcano.alertLevel.split(' ')[2]}</span><br>
+                            Eruptions: ${volcano.eruptions}<br>
+                            <em>${volcano.description}</em>
+                        </div>
+                    </div>
+                    <a href="${volcano.link}" target="_blank" class="more-info-link">More info</a>
+                `;
+                volcanoList.appendChild(listItem);
+            });
+        }
+
+        function renderMapMarkers() {
+            volcanoes.forEach(volcano => {
+                L.marker(volcano.coords).addTo(map).bindPopup(`
+                    <strong>${volcano.name}</strong><br>
+                    <span>${volcano.description}</span><br>
+                    <img src="${volcano.image}" class="volcano-image" alt="${volcano.name}"><br>
+                    <a href="${volcano.link}" target="_blank" class="more-info-link">More info</a>
+                `);
+            });
+        }
+
+        function renderBarChart() {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: volcanoes.map(v => v.name),
+                    datasets: [{
+                        label: 'Number of Eruptions',
+                        data: volcanoes.map(v => v.eruptions),
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderVolcanoList();
+            renderMapMarkers();
+            renderBarChart();
+        });
+    </script>
+</body>
+</html>
