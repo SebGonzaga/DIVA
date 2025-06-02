@@ -1,78 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Login & Registration Form</title>
     <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-      integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+        xintegrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="style2.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="form signup">
-        <h2>Sign Up</h2>
-        <div class="inputBox">
-          <input type="text" required="required" />
-          <i class="fa-regular fa-user"></i>
-          <span>username</span>
-        </div>
-        <div class="inputBox">
-          <input type="text" required="required" />
-          <i class="fa-regular fa-envelope"></i>
-          <span>email address</span>
-        </div>
-        <div class="inputBox">
-          <input type="password" required="required" />
-          <i class="fa-solid fa-lock"></i>
-          <span>create password</span>
-        </div>
-        <div class="inputBox">
-          <input type="password" required="required" />
-          <i class="fa-solid fa-lock"></i>
-          <span>confirm password</span>
-        </div>
-        <div class="inputBox">
-          <input type="submit" value="Create Account" />
-        </div>
-        <p>Already a member ? <a href="#" class="login">Log in</a></p>
-      </div>
 
-      <div class="form signin">
-        <h2>Sign In</h2>
-        <div class="inputBox">
-          <input type="text" required="required" />
-          <i class="fa-regular fa-user"></i>
-          <span>username</span>
-        </div>
-        <div class="inputBox">
-          <input type="password" required="required" />
-          <i class="fa-solid fa-lock"></i>
-          <span>password</span>
-        </div>
-        <div class="inputBox">
-          <input type="submit" value="Login" />
-        </div>
-        <p>Not Registered ? <a href="#" class="create">Create an account</a></p>
-      </div>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #223243;
+        }
+
+        .container {
+            padding: 40px;
+            border-radius: 20px;
+            border: 8px solid #223243;
+            box-shadow: -5px -5px 15px rgba(255, 255, 255, 0.1),
+                5px 5px 15px rgba(0, 0, 0, 0.35),
+                inset -5px -5px 15px rgba(255, 255, 255, 0.1),
+                inset 5px 5px 15px rgba(0, 0, 0, 0.35);
+        }
+
+        .container .form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .container .form.signin,
+        .container.signinForm .form.signup {
+            display: none;
+        }
+
+        .container.signinForm .form.signin {
+            display: flex;
+        }
+
+        .container .form h2 {
+            color: #fff;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+        }
+
+        .container .form .inputBox {
+            position: relative;
+            width: 300px;
+        }
+
+        /* Styles for both input and select elements */
+        .container .form .inputBox input,
+        .container .form .inputBox select {
+            padding: 12px 10px 12px 48px;
+            border: none;
+            width: 100%;
+            background: #223243;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #fff;
+            font-weight: 300;
+            border-radius: 25px;
+            font-size: 1em;
+            box-shadow: -5px -5px 15px rgba(255, 255, 255, 0.1),
+                5px 5px 15px rgba(0, 0, 0, 0.35);
+            transition: 0.5s;
+            outline: none;
+            /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Styles for placeholder/span animation */
+        .container .form .inputBox span {
+            position: absolute;
+            left: 0;
+            padding: 12px 10px 12px 48px;
+            pointer-events: none;
+            font-size: 1em;
+            font-weight: 300;
+            transition: 0.5s;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .container .form .inputBox input:valid ~ span,
+        .container .form .inputBox input:focus ~ span,
+        .container .form .inputBox select:valid ~ span,
+        .container .form .inputBox select:focus ~ span {
+            color: #00dfc4;
+            border: 1px solid #00dfc4;
+            background: #223243;
+            transform: translateX(25px) translateY(-7px);
+            font-size: 0.6em;
+            padding: 0 8px;
+            border-radius: 10px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Styles for input/select focus/valid state border */
+        .container .form .inputBox input:valid,
+        .container .form .inputBox input:focus,
+        .container .form .inputBox select:valid,
+        .container .form .inputBox select:focus {
+            border: 1px solid #00dfc4;
+        }
+
+        /* Styles for all icons inside inputBox */
+        .container .form .inputBox i {
+            position: absolute;
+            left: 16px;
+            width: 25px;
+            padding: 2px 0;
+            padding-right: 8px;
+            color: #00dfc4;
+            border-right: 1px solid #00dfc4;
+            top: 50%; /* Center vertically */
+            transform: translateY(-50%); /* Adjust for vertical centering */
+        }
+
+        /* Custom dropdown arrow for select elements */
+        .container .form .inputBox.select-box::after {
+            content: "\f0d7"; /* Font Awesome down arrow icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00dfc4;
+            pointer-events: none; /* Allows clicks to pass through to the select */
+        }
+
+        /* Styles for submit button */
+        .container .form .inputBox input[type="submit"] {
+            background: #00dfc4;
+            color: #223243;
+            padding: 10px 0;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: -5px -5px 15px rgba(255, 255, 255, 0.1),
+                5px 5px 15px rgba(0, 0, 0, 0.35),
+                inset -5px -5px 15px rgba(255, 255, 255, 0.1),
+                inset 5px 5px 15px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Styles for paragraph text */
+        .container .form p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75em;
+            font-weight: 300;
+        }
+
+        /* Styles for links in paragraphs */
+        .container .form p a {
+            font-weight: 500;
+            color: #fff;
+        }
+
+        /* Message Box Styling */
+        #messageBox {
+            margin-top: 20px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            text-align: center;
+            display: none; /* Hidden by default */
+            font-size: 0.9em;
+            word-wrap: break-word; /* Ensure long messages wrap */
+        }
+
+        #messageBox.success {
+            background-color: rgba(0, 223, 196, 0.2); /* Light green/teal background */
+            color: #00dfc4; /* Teal text */
+            border: 1px solid #00dfc4;
+        }
+
+        #messageBox.error {
+            background-color: rgba(255, 99, 71, 0.2); /* Light tomato background */
+            color: tomato; /* Tomato text */
+            border: 1px solid tomato;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="messageBox" class="message"></div>
+
+        <form class="form signup" id="signupForm">
+            <h2>Sign Up</h2>
+            <div class="inputBox">
+                <input type="text" id="signupUsername" required="required" />
+                <i class="fa-regular fa-user"></i>
+                <span>username</span>
+            </div>
+            <div class="inputBox">
+                <input type="email" id="signupEmail" required="required" />
+                <i class="fa-regular fa-envelope"></i>
+                <span>email address</span>
+            </div>
+
+            <div class="inputBox select-box">
+                <select id="signupCity" required="required">
+                    <option value="" disabled selected></option>
+                    <option value="agoncillo">Agoncillo</option>
+                    <option value="alitagtag">Alitagtag</option>
+                    <option value="balete">Balete</option>
+                    <option value="cuenca">Cuenca</option>
+                    <option value="laurel">Laurel</option>
+                    <option value="lemery">Lemery</option>
+                    <option value="lipa city">Lipa City</option>
+                    <option value="malvar">Malvar</option>
+                    <option value="mataas na kahoy">Mataas na Kahoy</option>
+                    <option value="san nicolas">San Nicolas</option>
+                    <option value="santa teresita">Santa Teresita</option>
+                    <option value="taal">Taal</option>
+                    <option value="talisay">Talisay</option>
+                    <option value="city of tanauan">City of Tanauan</option>
+                </select>
+                <i class="fa-solid fa-city"></i>
+                <span>city</span>
+            </div>
+            <div class="inputBox">
+                <input type="password" id="signupPassword" required="required" />
+                <i class="fa-solid fa-lock"></i>
+                <span>create password</span>
+            </div>
+            <div class="inputBox">
+                <input type="password" id="signupConfirmPassword" required="required" />
+                <i class="fa-solid fa-lock"></i>
+                <span>confirm password</span>
+            </div>
+            <div class="inputBox">
+                <input type="submit" value="Create Account" id="signupSubmit" />
+            </div>
+            <p>Already a member ? <a href="#" class="login">Log in</a></p>
+        </form>
+
+        <form class="form signin" id="loginForm">
+            <h2>Sign In</h2>
+            <div class="inputBox">
+                <input type="email" id="loginEmail" required="required" />
+                <i class="fa-regular fa-envelope"></i>
+                <span>email address</span>
+            </div>
+            <div class="inputBox">
+                <input type="password" id="loginPassword" required="required" />
+                <i class="fa-solid fa-lock"></i>
+                <span>password</span>
+            </div>
+            <div class="inputBox">
+                <input type="submit" value="Login" id="loginSubmit" />
+            </div>
+            <p>Not Registered ? <a href="#" class="create">Create an account</a></p>
+        </form>
     </div>
 
-    <script>
-      let login = document.querySelector(".login");
-      let create = document.querySelector(".create");
-      let container = document.querySelector(".container");
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js"; // Included for your config
 
-      login.onclick = function () {
-        container.classList.add("signinForm");
-      };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR7WqdyT3k9XIX4O7ZxavnE5YIPqmG6tQ",
+            authDomain: "diva-7a4a5.firebaseapp.com",
+            projectId: "diva-7a4a5",
+            storageBucket: "diva-7a4a5.firebasestorage.app",
+            messagingSenderId: "599543298180",
+            appId: "1:599543298180:web:1109d966886380fa34ead1",
+            measurementId: "G-60DS6K74ZF"
+        };
 
-      create.onclick = function () {
-        container.classList.remove("signinForm");
-      };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const analytics = getAnalytics(app); // Initialized analytics as per your config
+
+        // Get form elements and message box
+        let loginLink = document.querySelector(".login");
+        let createLink = document.querySelector(".create");
+        let container = document.querySelector(".container");
+        const signupForm = document.getElementById('signupForm');
+        const loginForm = document.getElementById('loginForm');
+        const messageBox = document.getElementById('messageBox');
+
+        // Function to display messages
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        }
+
+        // Toggle between Sign Up and Login forms
+        loginLink.onclick = function () {
+            container.classList.add("signinForm");
+            messageBox.style.display = 'none'; // Clear message on form switch
+        };
+
+        createLink.onclick = function () {
+            container.classList.remove("signinForm");
+            messageBox.style.display = 'none'; // Clear message on form switch
+        };
+
+        // Handle Sign Up Form Submission
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const city = document.getElementById('signupCity').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match.', 'error');
+                return;
+            }
+
+            try {
+                // 1. Create user with Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                console.log('Firebase Auth User created:', user.uid);
+
+                // 2. Send user data to your backend for Firestore storage and email notification
+                // Ensure your backend is running on http://localhost:5000
+                const backendResponse = await fetch('http://localhost:5000/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ uid: user.uid, username, email, city })
+                });
+
+                const backendData = await backendResponse.json();
+
+                if (backendResponse.ok) {
+                    showMessage('Account created successfully! Welcome!', 'success');
+                    console.log('Backend response:', backendData.message);
+                    signupForm.reset();
+                    // Auto-toggle to login form after successful signup
+                    loginLink.click(); // Simulate click on login link
+                } else {
+                    // If backend fails after Firebase Auth success, you might want to handle user deletion from Auth
+                    console.error('Backend failed after Firebase Auth:', backendData.error);
+                    showMessage(`Sign up successful, but backend error: ${backendData.error}`, 'error');
+                }
+
+            } catch (error) {
+                let errorMessage = 'An error occurred during sign up.';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'The email address is already in use by another account.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password should be at least 6 characters.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                showMessage(errorMessage, 'error');
+                console.error('Firebase Auth Error:', error);
+            }
+        });
+
+        // Handle Login Form Submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value; // Now expecting email
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                console.log('User logged in:', user.uid);
+                showMessage('Login successful! Welcome back!', 'success');
+                loginForm.reset();
+                // Redirect to a protected page or dashboard
+                // window.location.href = '/dashboard.html'; // Example redirect
+            } catch (error) {
+                let errorMessage = 'An error occurred during login.';
+                if (error.code === 'auth/invalid-email' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Invalid email or password.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                showMessage(errorMessage, 'error');
+                console.error('Firebase Auth Error:', error);
+            }
+        });
     </script>
-  </body>
+</body>
 </html>

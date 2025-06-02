@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Responsive Navigation with Chatbot</title>
+    <title>Chatbot</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script> <style>
-        /* Base Styles - Now exclusively for the bottom-nav layout */
-    * {
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base Styles */
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -16,8 +17,8 @@
         body {
             background-color: #000;
             font-family: 'Inter', sans-serif;
-            min-height: 100vh; /* Ensure body takes full viewport height */
-            padding: 10px; /* Consistent padding for all screen sizes */
+            min-height: 100vh;
+            padding: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,12 +30,12 @@
             flex-direction: column; /* Always stack vertically */
             height: calc(100vh - 20px); /* Account for body padding */
             width: 100%;
-            max-width: 100%; /* Still keeps content from being too wide on huge screens */
+            max-width: 100%; /* Ensures it doesn't get too wide on large screens */
             gap: 0; /* No gap between stacked elements */
         }
 
-        /* The sidebar and its related elements are now completely removed from the display flow */
-       .sidebar-container,
+        /* Hide sidebar related elements completely */
+        .sidebar-container,
         .logo-container,
         .logo,
         .logo-text,
@@ -43,28 +44,33 @@
         .active-indicator,
         .nav-item,
         .logout-container {
-            display: none !important; /* Force hide these elements */
-            visibility: hidden !important; /* Ensure they are not even seen by screen readers */
-            width: 0 !important; /* Remove their space */
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
             height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
         }
+
         .main-content {
             flex: 1;
             background-color: #1e293b;
-            padding: 30px;
+            padding: 15px; /* Adjusted padding for mobile */
             border-radius: 12px;
             color: #ffffff;
             overflow-y: auto; /* Enables scrolling for content */
             height: 100%; /* Fill parent height */
             padding-bottom: 80px; /* Space for the persistent bottom nav */
+            display: flex; /* Make main-content a flex container */
+            flex-direction: column; /* Stack its children vertically */
+        }
 
-            /* Hide scrollbar for Chrome, Safari, Edge */
-            &::-webkit-scrollbar {
-                display: none;
-            }
-            /* Hide scrollbar for Firefox */
+        /* Hide scrollbar for Chrome, Safari, Edge */
+        .main-content::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for Firefox */
+        .main-content {
             scrollbar-width: none;
         }
 
@@ -94,7 +100,7 @@
         .bottom-nav a {
             text-decoration: none;
             color: #94a3b8;
-            font-size: 11px;
+            font-size: 10px; /* Slightly smaller font for mobile */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -110,8 +116,8 @@
         }
 
         .bottom-nav-item img {
-            width: 22px;
-            height: 22px;
+            width: 20px; /* Slightly smaller icons for mobile */
+            height: 20px;
             margin-bottom: 4px;
             opacity: 0.7;
             transition: opacity 0.3s ease, transform 0.2s ease;
@@ -152,9 +158,7 @@
             }
         }
 
-
         /* --- Chatbot Styles --- */
-        /* These styles are taken directly from your chatbot file */
         .chatbot-container {
             background-color: #ffffff;
             border-radius: 12px;
@@ -172,39 +176,46 @@
         .chatbot-header {
             background-color: #4299e1;
             color: #ffffff;
-            padding: 1rem;
+            padding: 0.75rem; /* Adjusted padding */
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid #3182ce;
+            font-size: 1rem; /* Adjusted font size */
         }
 
         .chatbot-title {
-            font-size: 1.25rem;
+            font-size: 1.1rem; /* Adjusted font size */
             font-weight: 600;
         }
 
-        #clear-chat-button { /* Changed from #close-button to match your JS */
+        #clear-chat-button {
             color: #gray-300;
             transition-colors: duration-200;
             cursor: pointer;
+            font-size: 0.75rem; /* Smaller font size */
+            padding: 0.25rem 0.6rem; /* Adjusted padding */
         }
-        #clear-chat-button:hover { /* Added hover for clarity */
+        #clear-chat-button:hover {
             color: #ffffff;
         }
 
-
         .suggestion-questions {
-            padding: 1rem;
+            padding: 0.75rem; /* Adjusted padding */
             background-color: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
+        }
+
+        .suggestion-questions p {
+            font-size: 0.8rem; /* Adjusted font size */
+            margin-bottom: 0.5rem; /* Adjusted margin */
         }
 
         .suggestion-button {
             background-color: #dbeafe;
             color: #1e40af;
-            font-size: 0.875rem;
-            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem; /* Adjusted font size */
+            padding: 0.4rem 0.6rem; /* Adjusted padding */
             border-radius: 9999px;
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.1s ease;
@@ -219,7 +230,7 @@
 
         .chat-messages {
             flex: 1;
-            padding: 1rem;
+            padding: 0.75rem; /* Adjusted padding */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -234,10 +245,11 @@
 
         .message {
             border-radius: 1.3em;
-            padding: 0.75rem 1rem;
-            max-width: 70%;
+            padding: 0.6rem 0.8rem; /* Adjusted padding */
+            max-width: 85%; /* Increased max-width for better mobile readability */
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             position: relative;
+            font-size: 0.9rem; /* Adjusted font size */
         }
 
         .message.sent {
@@ -256,8 +268,8 @@
 
         .timestamp {
             display: block;
-            margin-top: 0.25rem;
-            font-size: 0.75rem;
+            margin-top: 0.2rem; /* Adjusted margin */
+            font-size: 0.65rem; /* Adjusted font size */
             color: #94a3b8;
             text-align: right;
         }
@@ -267,9 +279,9 @@
 
         .copy-button {
             position: absolute;
-            top: 0.25rem;
-            right: 0.25rem;
-            padding: 0.25rem;
+            top: 0.15rem; /* Adjusted position */
+            right: 0.15rem; /* Adjusted position */
+            padding: 0.2rem; /* Adjusted padding */
             background-color: rgba(255, 255, 255, 0.7);
             border-radius: 9999px;
             opacity: 0;
@@ -284,8 +296,8 @@
         }
 
         .copy-button svg {
-            width: 1rem;
-            height: 1rem;
+            width: 0.9rem; /* Adjusted icon size */
+            height: 0.9rem; /* Adjusted icon size */
             color: #64748b;
         }
 
@@ -295,13 +307,13 @@
 
         .copied-tooltip {
             position: absolute;
-            top: -1.75rem;
+            top: -1.5rem; /* Adjusted position */
             left: 50%;
             transform: translateX(-50%);
             background-color: #334155;
             color: #ffffff;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
+            font-size: 0.65rem; /* Adjusted font size */
+            padding: 0.2rem 0.4rem; /* Adjusted padding */
             border-radius: 0.25rem;
             white-space: nowrap;
             z-index: 10;
@@ -314,12 +326,12 @@
             justify-content: center;
             padding: 0.5rem;
             color: #6b7280;
-            font-size: 0.875rem;
+            font-size: 0.75rem; /* Adjusted font size */
         }
 
         .loading-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px; /* Slightly smaller dot */
+            height: 7px;
             background-color: #38bdf8;
             border-radius: 50%;
             margin: 0 2px;
@@ -340,7 +352,7 @@
         }
 
         .input-area-container {
-            padding: 1rem;
+            padding: 0.75rem; /* Adjusted padding */
             border-top: 1px solid #e5e7eb;
             margin-top: auto;
             background-color: #ffffff;
@@ -356,9 +368,10 @@
             flex: 1;
             border-radius: 1.5rem;
             border: 1px solid #d1d5db;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.9rem; /* Adjusted padding */
             outline: none;
-            height: 48px;
+            height: 44px; /* Slightly smaller height */
+            font-size: 0.9rem; /* Adjusted font size */
             focus: ring-2;
             focus: ring-blue-500;
             focus: border-transparent;
@@ -369,7 +382,7 @@
         }
 
         #send-button {
-            height: 48px;
+            height: 44px; /* Matches input height */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -385,9 +398,10 @@
             background-color: #3182ce;
         }
         #send-button svg {
-            height: 1rem;
-            width: 1rem;
+            height: 0.9rem; /* Adjusted icon size */
+            width: 0.9rem; /* Adjusted icon size */
         }
+
     </style>
 </head>
 <body>
@@ -415,7 +429,7 @@
                         </div>
                     </a>
                     <a href="mobileai.html" data-nav-target="virtual-assistance">
-                         <div class="active-indicator" style="top: 0;"></div>
+                           <div class="active-indicator" style="top: 0;"></div>
                         <div class="nav-item">
                             <img src="https://img.icons8.com/ios-filled/50/ffffff/robot-2.png" alt="Virtual Assistant Icon">
                             <span>Virtual Assistance</span>
@@ -429,7 +443,7 @@
                     </a>
                 </div>
                 <div class="logout-container">
-                    <a href="logout.html" data-nav-target="logout">
+                    <a href="login.html" data-nav-target="logout">
                         <div class="nav-item">
                             <img src="https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png" alt="Logout Icon">
                             <span>Logout</span>
@@ -476,7 +490,7 @@
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
 
     <div class="bottom-nav-container" id="bottomNavContainer">
@@ -505,7 +519,7 @@
                     <span>SOS</span>
                 </div>
             </a>
-            <a href="logout.html" data-nav-target="logout">
+            <a href="login.html" data-nav-target="logout">
                 <div class="bottom-nav-item">
                     <img src="https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png" alt="Logout Icon">
                     <span>Logout</span>
@@ -552,7 +566,7 @@
                 if (currentPath === '' || currentPath === 'index.html' || currentPath === 'dashboard.html' || currentPath === 'weather-dashboard.html') {
                     const weatherDashboardLink = document.querySelector('.bottom-nav a[data-nav-target="weather-dashboard"]');
                     if (weatherDashboardLink) updateActiveState(weatherDashboardLink);
-                } else if (currentPath === 'virtual-assistance.html' || currentPath === 'ai.html') {
+                } else if (currentPath === 'mobileai.html' || currentPath === 'virtual-assistance.html' || currentPath === 'ai.html') { // Ensured 'mobileai.html' is covered
                     const vaLink = document.querySelector('.bottom-nav a[data-nav-target="virtual-assistance"]');
                     if (vaLink) updateActiveState(vaLink);
                 }
@@ -572,7 +586,7 @@
 
         function addMessageToDisplay(text, type, timestamp) {
             const messageWrapper = document.createElement("div");
-            messageWrapper.classList.add("message-wrapper"); // Tailwind classes applied in CSS
+            messageWrapper.classList.add("message-wrapper");
             if (type === 'sent') {
                 messageWrapper.classList.add("justify-end");
             } else {
